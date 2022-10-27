@@ -59,8 +59,7 @@ const App: Component = () => {
   const [satoriOutput, setSatoriOutput] = createSignal('');
   const [timerRef, setTimerRef] = createSignal<HTMLDivElement | undefined>();
   const [timerInterval, setTimerInterval] = createSignal<NodeJS.Timer>();
-  let myDiv: HTMLDivElement | undefined;
-  let renderSvg: string | undefined;
+  let myCanvas: HTMLCanvasElement | undefined;
 
   const [timeLeft, setTimeLeft] = createSignal<TTimeLeft>({
     minutes: 25,
@@ -74,23 +73,31 @@ const App: Component = () => {
     console.log({ myDiv: timerRef()?.outerHTML });
     const markup = html(timerRef()?.outerHTML!);
 
-    const _result = await satori(
-      // {
-      //   type: 'div',
-      //   props: {
-      //     children: `hi: ${timeLeft().minutes}`,
-      //     style: { color: 'black' },
-      //   },
-      // },
-      markup,
-      {
-        width: 800,
-        height: 400,
-        // @ts-ignore
-        fonts,
-        embedFont: true,
-      }
-    );
+    const _result = await satori(markup, {
+      width: 600,
+      height: 200,
+      // @ts-ignore
+      fonts,
+      embedFont: true,
+    });
+    if (myCanvas) {
+      let ctx = myCanvas.getContext('2d');
+      let data = _result;
+      let DOMURL = window.URL || window.webkitURL || window;
+      let img1 = new Image();
+      let svg = new Blob([data], { type: 'image/svg+xml' });
+      let url = DOMURL.createObjectURL(svg);
+      img1.onload = function () {
+        ctx!.drawImage(img1, -150, -50);
+        DOMURL.revokeObjectURL(url);
+      };
+      img1.src = url;
+    }
+    // Remove any characters outside the Latin1 range
+    // var decoded = unescape(encodeURIComponent(svgString));
+
+    // Now we can use btoa to convert the svg to base64
+
     console.log({ _result });
     setSatoriOutput(_result);
     // }
@@ -161,6 +168,24 @@ const App: Component = () => {
 
     return `${minutes}:${seconds}`;
   });
+
+  function pip() {
+    if (!myCanvas) {
+      return;
+    }
+    const canvas = myCanvas;
+
+    const video = document.createElement('video');
+    video.muted = true;
+    video.srcObject = canvas.captureStream();
+    video.addEventListener('loadedmetadata', () => {
+      video.requestPictureInPicture();
+    });
+    video.play();
+
+    // document.getElementById('pip-button').disabled = true;
+  }
+
   return (
     <div class="flex h-full items-center justify-center">
       <div>
@@ -180,6 +205,7 @@ const App: Component = () => {
           <div>{progress()}</div>
         </div>
         <div innerHTML={satoriOutput()} />
+        <canvas ref={myCanvas} class="h-[300px] w-[600px] " />
         <div class="mt-10  flex space-x-4">
           <button
             onClick={startTimer}
@@ -192,6 +218,12 @@ const App: Component = () => {
             class="group inline-flex items-center rounded-full bg-slate-900 px-4 py-1.5 font-semibold text-white transition hover:bg-slate-700"
           >
             Pause
+          </button>
+          <button
+            onClick={pip}
+            class="group inline-flex items-center rounded-full bg-slate-900 px-4 py-1.5 font-semibold text-white transition hover:bg-slate-700"
+          >
+            pip
           </button>
         </div>
       </div>
