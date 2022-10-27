@@ -206,7 +206,7 @@ const App: Component = () => {
         </div>
         <div innerHTML={satoriOutput()} />
         <canvas ref={myCanvas} class="h-[300px] w-[600px] " />
-        <div class="mt-10  flex space-x-4">
+        <div class="mt-10  flex justify-center space-x-4">
           <button
             onClick={startTimer}
             class="group inline-flex items-center rounded-full bg-slate-900 px-4 py-1.5 font-semibold text-white transition hover:bg-slate-700"
