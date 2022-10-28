@@ -60,6 +60,7 @@ const App: Component = () => {
   const [timerRef, setTimerRef] = createSignal<HTMLDivElement | undefined>();
   const [timerInterval, setTimerInterval] = createSignal<NodeJS.Timer>();
   let myCanvas: HTMLCanvasElement | undefined;
+  let myVideo: HTMLVideoElement | undefined;
 
   const [timeLeft, setTimeLeft] = createSignal<TTimeLeft>({
     minutes: 25,
@@ -173,9 +174,12 @@ const App: Component = () => {
     if (!myCanvas) {
       return;
     }
+    if (!myVideo) {
+      return;
+    }
     const canvas = myCanvas;
 
-    const video = document.createElement('video');
+    const video = myVideo;
     video.muted = true;
     video.srcObject = canvas.captureStream();
     video.addEventListener('loadedmetadata', () => {
@@ -187,7 +191,7 @@ const App: Component = () => {
   }
 
   return (
-    <div class="flex h-full items-center justify-center">
+    <div class="flex  items-center justify-center">
       <div>
         <div
           ref={(el) => setTimerRef(el)}
@@ -206,6 +210,7 @@ const App: Component = () => {
         </div>
         <div innerHTML={satoriOutput()} />
         <canvas ref={myCanvas} class="h-[300px] w-[600px] " />
+        <video ref={myVideo} class="h-[300px] w-[600px] " controls />
         <div class="mt-10  flex justify-center space-x-4">
           <button
             onClick={startTimer}
