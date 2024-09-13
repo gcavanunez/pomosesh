@@ -4,59 +4,59 @@ import {
   createMemo,
   createSignal,
   onCleanup,
-} from 'solid-js';
-import satori from 'satori';
-import { html } from 'satori-html';
+} from "solid-js";
+import satori from "satori";
+import { html } from "satori-html";
 
-type TStatuses = 'STARTED' | 'PAUSED';
+type TStatuses = "STARTED" | "PAUSED";
 type TTimeLeft = {
   minutes: number;
   seconds: number;
 };
 const duration = 25;
 async function init() {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === "undefined") return [];
 
   const [font, fontBold, fontIcon] =
     window.__resource ||
     (window.__resource = await Promise.all([
-      fetch('/inter-latin-ext-400-normal.woff').then((res) =>
-        res.arrayBuffer()
+      fetch("/inter-latin-ext-400-normal.woff").then((res) =>
+        res.arrayBuffer(),
       ),
-      fetch('/inter-latin-ext-700-normal.woff').then((res) =>
-        res.arrayBuffer()
+      fetch("/inter-latin-ext-700-normal.woff").then((res) =>
+        res.arrayBuffer(),
       ),
-      fetch('/material-icons-base-400-normal.woff').then((res) =>
-        res.arrayBuffer()
+      fetch("/material-icons-base-400-normal.woff").then((res) =>
+        res.arrayBuffer(),
       ),
     ]));
 
   return [
     {
-      name: 'Inter',
+      name: "Inter",
       data: font,
       weight: 400,
-      style: 'normal',
+      style: "normal",
     },
     {
-      name: 'Inter',
+      name: "Inter",
       data: fontBold,
       weight: 700,
-      style: 'normal',
+      style: "normal",
     },
     {
-      name: 'Material Icons',
+      name: "Material Icons",
       data: fontIcon,
       weight: 300,
-      style: 'normal',
+      style: "normal",
     },
   ];
 }
 const loadFonts = init();
 
 const App: Component = () => {
-  const [status, setStatus] = createSignal<TStatuses>('STARTED');
-  const [satoriOutput, setSatoriOutput] = createSignal('');
+  const [status, setStatus] = createSignal<TStatuses>("STARTED");
+  const [satoriOutput, setSatoriOutput] = createSignal("");
   const [timerRef, setTimerRef] = createSignal<HTMLDivElement | undefined>();
   const [timerInterval, setTimerInterval] = createSignal<NodeJS.Timer>();
   let myCanvas: HTMLCanvasElement | undefined;
@@ -82,11 +82,11 @@ const App: Component = () => {
       embedFont: true,
     });
     if (myCanvas) {
-      let ctx = myCanvas.getContext('2d');
+      let ctx = myCanvas.getContext("2d");
       let data = _result;
       let DOMURL = window.URL || window.webkitURL || window;
       let img1 = new Image();
-      let svg = new Blob([data], { type: 'image/svg+xml' });
+      let svg = new Blob([data], { type: "image/svg+xml" });
       let url = DOMURL.createObjectURL(svg);
       img1.onload = function () {
         ctx!.drawImage(img1, -150, -50);
@@ -108,14 +108,14 @@ const App: Component = () => {
     const endTime = new Date(
       new Date().getTime() +
         timeLeft().minutes * 60000 +
-        timeLeft().seconds * 1000
+        timeLeft().seconds * 1000,
     );
 
     const interval = setInterval(() => {
       const calculatedTimeLeft = calculateTimeLeft(endTime);
       const calculatedProgress = calculateProgress(
         duration,
-        calculatedTimeLeft
+        calculatedTimeLeft,
       );
       setTimeLeft(calculatedTimeLeft);
 
@@ -151,21 +151,22 @@ const App: Component = () => {
     const endTime = new Date(
       new Date().getTime() +
         timeLeft().minutes * 60000 +
-        timeLeft().seconds * 1000
+        timeLeft().seconds * 1000,
     );
     const calculatedTimeLeft = calculateTimeLeft(endTime);
     return calculateProgress(duration, calculatedTimeLeft);
   });
 
   const pauseCount = () => {
+    // @ts-ignore
     clearInterval(timerInterval());
   };
 
   const displayedTime = createMemo(() => {
     const minutes =
-      timeLeft().minutes < 10 ? '0' + timeLeft().minutes : timeLeft().minutes;
+      timeLeft().minutes < 10 ? "0" + timeLeft().minutes : timeLeft().minutes;
     const seconds =
-      timeLeft().seconds < 10 ? '0' + timeLeft().seconds : timeLeft().seconds;
+      timeLeft().seconds < 10 ? "0" + timeLeft().seconds : timeLeft().seconds;
 
     return `${minutes}:${seconds}`;
   });
@@ -182,7 +183,7 @@ const App: Component = () => {
     const video = myVideo;
     video.muted = true;
     video.srcObject = canvas.captureStream();
-    video.addEventListener('loadedmetadata', () => {
+    video.addEventListener("loadedmetadata", () => {
       video.requestPictureInPicture();
     });
     video.play();
@@ -196,16 +197,16 @@ const App: Component = () => {
         <div
           ref={(el) => setTimerRef(el)}
           style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            'flex-direction': 'column',
-            'align-items': 'center',
-            'justify-content': 'center',
-            'background-color': 'white',
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            "flex-direction": "column",
+            "align-items": "center",
+            "justify-content": "center",
+            "background-color": "white",
           }}
         >
-          <h1 class="text-3xl font-bold underline">{displayedTime}</h1>
+          <h1 class="text-3xl font-bold underline">{displayedTime()}</h1>
           <div>{progress()}</div>
         </div>
         <div innerHTML={satoriOutput()} />

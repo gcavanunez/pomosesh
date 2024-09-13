@@ -32,3 +32,8 @@ Your app is ready to be deployed!
 ## Deployment
 
 You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+
+## About the Project
+
+Inspiration for logic 
+- https://github.com/sasa95/pomodor/blob/95f9bbadf2d86f5f55b6be4d92c0522a8cea26d6/src/scenes/Timer/components/CountdownCircle.js
