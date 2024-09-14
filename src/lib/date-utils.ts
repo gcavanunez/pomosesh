@@ -1,9 +1,9 @@
-import { addMinutes, differenceInMinutes } from "date-fns";
+import { addMinutes, differenceInMinutes, startOfMinute } from "date-fns";
 
 export function convertTimeToDate(time: string) {
   const [hours, minutes] = time.split(":").map(Number);
 
-  const now = new Date();
+  const now = startOfMinute(new Date());
   now.setHours(hours);
   now.setMinutes(minutes);
 
@@ -32,4 +32,17 @@ export function periods(chunk: number, chunks: number, start = new Date()) {
   });
 
   return periods;
+}
+export function secondsToMinutesAndSeconds(seconds: number) {
+  // Calculate the minutes and remaining seconds
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  // Format the minutes and seconds with leading zeros if necessary
+  const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+  const formattedSeconds =
+    remainingSeconds < 10 ? "0" + remainingSeconds : remainingSeconds;
+
+  // Return the formatted time
+  return `${formattedMinutes}:${formattedSeconds}`;
 }

@@ -29,6 +29,7 @@
     "yoga-wasm-web": "^0.3.3"
   },
   "dependencies": {
+    "@ark-ui/solid": "^3.12.0",
     "@solidjs/router": "^0.14.3",
     "date-fns": "^3.6.0",
     "prettier": "^3.3.3",

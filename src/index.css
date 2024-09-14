@@ -1,3 +1,58 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*   IS-OPEN STATE   */
+dialog[open] {
+  translate: 0 0;
+}
+
+/*   EXIT STATE   */
+dialog {
+  transition:
+    translate 0.7s ease-out,
+    overlay 0.7s ease-out,
+    display 0.7s ease-out allow-discrete;
+  translate: 0 100vh;
+}
+
+/*   0. BEFORE-OPEN STATE   */
+@starting-style {
+  dialog[open] {
+    translate: 0 100vh;
+  }
+}
+
+.settings-popover {
+  &:popover-open {
+    /*   0. OPEN STATE   */
+    /*  state when popover is open, BOTH:
+        what we're transitioning *in* to 
+        and transitioning *out* from */
+    transform: translateY(0);
+    opacity: 1;
+
+    /*   1. BEFORE-OPEN STATE   */
+    /*  initial state for what we're animating *in* from, 
+        in this case: goes from lower (y + 20px) to center  */
+    @starting-style {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+  }
+
+  /*   2. AFTER-OPEN-IS-CLOSED STATE   */
+  /*  initial state for what we're animating *out* to , 
+      in this case: goes from center to (y - 50px) higher */
+  transform: translateY(-50px);
+  opacity: 0;
+
+  /*  enumarate transitioning properties, including display */
+  transition:
+    transform 0.5s,
+    opacity 0.5s,
+    display 0.5s allow-discrete;
+}
+.circular {
+  trnasition: stroke-dashoffset 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}

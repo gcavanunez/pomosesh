@@ -1,15 +1,10 @@
 // /* @refresh reload */
-// import { render } from 'solid-js/web';
-
 import "./index.css";
-// import App from './App';
-
-// render(() => <App />, document.getElementById('root') as HTMLElement);
 import { render } from "solid-js/web";
 import { Route, Router } from "@solidjs/router";
-import { lazy } from "solid-js";
 import Index from "./routes/index";
 import Experiment from "./routes/experiment";
+import SiteLayout from "./layouts/site";
 
 const wrapper = document.getElementById("root");
 
@@ -17,16 +12,9 @@ if (!wrapper) {
   throw new Error("Wrapper div not found");
 }
 
-// const routes = [
-//   {
-//     path: "/",
-//     component: lazy(() => import("./routes/index.js")),
-//   },
-// ];
-
 render(
   () => (
-    <Router>
+    <Router root={SiteLayout}>
       <Route path="/" component={Index} />
       <Route path="/experiment" component={Experiment} />
     </Router>
