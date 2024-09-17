@@ -1,11 +1,22 @@
-import { addMinutes, differenceInMinutes, startOfMinute } from "date-fns";
+import {
+  addDays,
+  addMinutes,
+  differenceInMinutes,
+  startOfMinute,
+} from "date-fns";
 
-export function convertTimeToDate(time: string) {
+export function convertTimeToDate(time: string, current?: Date) {
   const [hours, minutes] = time.split(":").map(Number);
 
   const now = startOfMinute(new Date());
   now.setHours(hours);
   now.setMinutes(minutes);
+
+  if (current) {
+    if (now.getTime() < current.getTime()) {
+      now.setDate(addDays(current, 1).getDate());
+    }
+  }
 
   return now;
 }
