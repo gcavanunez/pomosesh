@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@ark-ui/solid": "^3.12.0",
+    "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.14.3",
     "date-fns": "^3.6.0",
     "satori": "^0.10.14",
