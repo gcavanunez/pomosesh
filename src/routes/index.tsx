@@ -133,17 +133,17 @@ export default function Page() {
 					<div class="mx-auto w-full max-w-md">
 						<div class="divide-y divide-gray-300/50">
 							<div class="py-6">
-								<div class="hidden">
-									<div class="hidden flex-col items-center">
+								<div class="md:hidden">
+									<div class="flex flex-col items-center">
 										<canvas
 											ref={setMyCanvas!}
-											class="h-[720px] w-[1280px]"
+											class="hidden aspect-video"
 											width={1280}
 											height={720}
 										/>
 										<video
 											ref={setMyVideo!}
-											class="h-[720px] w-[1280px]"
+											class="aspect-video"
 											controls
 										/>
 									</div>

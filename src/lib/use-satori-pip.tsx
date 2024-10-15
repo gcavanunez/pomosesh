@@ -99,7 +99,7 @@ export const useSatoriPip = (
 		setSatoriOutput(_result);
 	});
 
-	function pip() {
+	setTimeout(() => {
 		if (!myCanvas()) {
 			return;
 		}
@@ -111,11 +111,19 @@ export const useSatoriPip = (
 		const video = myVideo()!;
 		video.muted = true;
 		video.srcObject = canvas.captureStream();
-		video.addEventListener('loadedmetadata', () => {
-			video.requestPictureInPicture();
-		});
+		// video.addEventListener('loadedmetadata', () => {
+		// 	video.requestPictureInPicture();
+		// });
 		video.play();
+	}, 1000);
 
+	function pip() {
+		const video = myVideo()!;
+		if (document.pictureInPictureElement) {
+			document.exitPictureInPicture();
+		} else if (document.pictureInPictureEnabled) {
+			video.requestPictureInPicture();
+		}
 		// document.getElementById('pip-button').disabled = true;
 	}
 
