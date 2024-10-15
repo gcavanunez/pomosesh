@@ -61,8 +61,8 @@ export const useSatoriPip = (
 		const markup = html(timerRef()?.outerHTML!);
 
 		const _result = await satori(markup, {
-			width: 800,
-			height: 400,
+			width: 640,
+			height: 360,
 			// @ts-ignore
 			fonts,
 			embedFont: true,

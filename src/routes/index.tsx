@@ -16,6 +16,7 @@ import {
 } from '../lib/date-utils';
 import { useSatoriPip } from '../lib/use-satori-pip';
 import { Backdrop } from '../components/backdrop';
+import { Button } from '../components/button';
 
 export default function Page() {
 	const [startTime, setStartTime] = createSignal(
@@ -38,7 +39,7 @@ export default function Page() {
 		HTMLCanvasElement | undefined
 	>();
 	const [myVideo, setMyVideo] = createSignal<HTMLVideoElement | undefined>();
-	// const { pip } = useSatoriPip(check, timerRef, myCanvas, myVideo);
+	const { pip } = useSatoriPip(check, timerRef, myCanvas, myVideo);
 
 	const chunks = createMemo(() => {
 		const now = convertTimeToDate(startTime());
@@ -46,7 +47,7 @@ export default function Page() {
 
 		return periods(
 			timer(),
-			calculateChunksOfTime(timer(), end, now),
+			calculateChunksOfTime(timer() || 1, end, now),
 			now,
 		).map((p, i) => ({
 			idx: i,
@@ -132,21 +133,81 @@ export default function Page() {
 					<div class="mx-auto w-full max-w-md">
 						<div class="divide-y divide-gray-300/50">
 							<div class="py-6">
-								{/* <SatoriPip tick={check()} timerRef={timerRef} /> */}
-
-								{/* <div class="flex flex-col items-center"> */}
-								{/* 	<canvas */}
-								{/* 		ref={setMyCanvas!} */}
-								{/* 		class="h-[400px] w-[800px]" */}
-								{/* 		width={1600} */}
-								{/* 		height={600} */}
-								{/* 	/> */}
-								{/* 	<video */}
-								{/* 		ref={setMyVideo!} */}
-								{/* 		class="h-[400px] w-[800px]" */}
-								{/* 		controls */}
-								{/* 	/> */}
-								{/* </div> */}
+								<div class="hidden">
+									<div class="hidden flex-col items-center">
+										<canvas
+											ref={setMyCanvas!}
+											class="h-[720px] w-[1280px]"
+											width={1280}
+											height={720}
+										/>
+										<video
+											ref={setMyVideo!}
+											class="h-[720px] w-[1280px]"
+											controls
+										/>
+									</div>
+									<div
+										ref={setTimerRef!}
+										style={{
+											position: 'relative',
+											display: 'flex',
+											height: '100%',
+											width: '100%',
+											'align-items': 'center',
+											'justify-content': 'center',
+											'letter-spacing': '-.02em',
+											'font-weight': 700,
+											background: 'white',
+										}}
+									>
+										<div
+											style={{
+												right: '0px',
+												left: '0px',
+												top: '42px',
+												position: 'absolute',
+												display: 'flex',
+												'align-items': 'center',
+											}}
+										>
+											<span
+												style={{
+													width: '24px',
+													height: '24px',
+													background: 'black',
+												}}
+											/>
+											<span
+												style={{
+													'margin-left': '8px',
+													'line-height': 1.4,
+													'font-size': '32px',
+												}}
+											>
+												The Thing! do the thing!!
+											</span>
+										</div>
+										<div
+											style={{
+												display: 'flex',
+												'flex-wrap': 'wrap',
+												'justify-content': 'center',
+												padding: '20px 50px',
+												margin: '0 42px',
+												'font-size': '90px',
+												width: 'auto',
+												'max-width': '550px',
+												'text-align': 'center',
+												'background-color': 'black',
+												color: 'white',
+												'line-height': 1.4,
+											}}
+										>
+											{progress()?.timeLeft}
+										</div>
+									</div>
+								</div>
 								<h2 class="text-2xl font-semibold leading-7 text-gray-900">
 									Pomosesh
 								</h2>
@@ -193,7 +254,7 @@ export default function Page() {
 										</svg>
 										Reset
 									</button>
-									{/* <button onClick={pip}>Pip</button> */}
+									<Button onClick={pip}>Pip</Button>
 								</div>
 							</div>
 							<div class="space-y-6 py-6 text-base leading-7 text-gray-600">
