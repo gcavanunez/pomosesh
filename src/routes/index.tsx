@@ -147,64 +147,66 @@ export default function Page() {
 											controls
 										/>
 									</div>
-									<div
-										ref={setTimerRef!}
-										style={{
-											position: 'relative',
-											display: 'flex',
-											height: '100%',
-											width: '100%',
-											'align-items': 'center',
-											'justify-content': 'center',
-											'letter-spacing': '-.02em',
-											'font-weight': 700,
-											background: 'white',
-										}}
-									>
+									<div class="hidden">
 										<div
+											ref={setTimerRef!}
 											style={{
-												right: '0px',
-												left: '0px',
-												top: '42px',
-												position: 'absolute',
+												position: 'relative',
 												display: 'flex',
+												height: '100%',
+												width: '100%',
 												'align-items': 'center',
+												'justify-content': 'center',
+												'letter-spacing': '-.02em',
+												'font-weight': 700,
+												background: 'white',
 											}}
 										>
-											<span
+											<div
 												style={{
-													width: '24px',
-													height: '24px',
-													background: 'black',
-												}}
-											/>
-											<span
-												style={{
-													'margin-left': '8px',
-													'line-height': 1.4,
-													'font-size': '32px',
+													right: '0px',
+													left: '0px',
+													top: '42px',
+													position: 'absolute',
+													display: 'flex',
+													'align-items': 'center',
 												}}
 											>
-												The Thing! do the thing!!
-											</span>
-										</div>
-										<div
-											style={{
-												display: 'flex',
-												'flex-wrap': 'wrap',
-												'justify-content': 'center',
-												padding: '20px 50px',
-												margin: '0 42px',
-												'font-size': '90px',
-												width: 'auto',
-												'max-width': '550px',
-												'text-align': 'center',
-												'background-color': 'black',
-												color: 'white',
-												'line-height': 1.4,
-											}}
-										>
-											{progress()?.timeLeft}
+												<span
+													style={{
+														width: '24px',
+														height: '24px',
+														background: 'black',
+													}}
+												/>
+												<span
+													style={{
+														'margin-left': '8px',
+														'line-height': 1.4,
+														'font-size': '32px',
+													}}
+												>
+													The Thing! do the thing!!
+												</span>
+											</div>
+											<div
+												style={{
+													display: 'flex',
+													'flex-wrap': 'wrap',
+													'justify-content': 'center',
+													padding: '20px 50px',
+													margin: '0 42px',
+													'font-size': '90px',
+													width: 'auto',
+													'max-width': '550px',
+													'text-align': 'center',
+													'background-color': 'black',
+													color: 'white',
+													'line-height': 1.4,
+												}}
+											>
+												{progress()?.timeLeft}
+											</div>
 										</div>
 									</div>
 								</div>
