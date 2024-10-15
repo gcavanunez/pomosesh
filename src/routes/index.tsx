@@ -1,3 +1,4 @@
+import { Title } from '@solidjs/meta';
 import {
 	addMinutes,
 	differenceInMinutes,
@@ -14,6 +15,7 @@ import {
 	secondsToMinutesAndSeconds,
 } from '../lib/date-utils';
 import { useSatoriPip } from '../lib/use-satori-pip';
+import { Backdrop } from '../components/backdrop';
 
 export default function Page() {
 	const [startTime, setStartTime] = createSignal(
@@ -123,77 +125,9 @@ export default function Page() {
 
 	return (
 		<>
+			<Title>{progress()?.timeLeft}</Title>
 			<div class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					version="1.1"
-					class="fixed inset-0"
-					viewBox="0 0 700 700"
-				>
-					<defs>
-						<radialGradient id="ffflux-gradient">
-							<stop
-								offset="0%"
-								stop-color="hsl(227, 100%, 50%)"
-							></stop>
-							<stop
-								offset="100%"
-								stop-color="hsl(0, 0%, 100%)"
-							></stop>
-						</radialGradient>
-						<filter
-							id="ffflux-filter"
-							x="-20%"
-							y="-20%"
-							width="140%"
-							height="140%"
-							filterUnits="objectBoundingBox"
-							primitiveUnits="userSpaceOnUse"
-							color-interpolation-filters="sRGB"
-						>
-							<feTurbulence
-								type="fractalNoise"
-								baseFrequency="0.005 0.003"
-								numOctaves="1"
-								seed="2"
-								stitchTiles="stitch"
-								x="0%"
-								y="0%"
-								width="100%"
-								height="100%"
-								result="turbulence"
-							></feTurbulence>
-							<feGaussianBlur
-								stdDeviation="20 0"
-								x="0%"
-								y="0%"
-								width="100%"
-								height="100%"
-								in="turbulence"
-								// @ts-ignore
-								edgeMode="duplicate"
-								result="blur"
-							></feGaussianBlur>
-							<feBlend
-								// @ts-ignore
-								mode="color-dodge"
-								x="0%"
-								y="0%"
-								width="100%"
-								height="100%"
-								in="SourceGraphic"
-								in2="blur"
-								result="blend"
-							></feBlend>
-						</filter>
-					</defs>
-					<rect
-						width="700"
-						height="700"
-						fill="url(#ffflux-gradient)"
-						filter="url(#ffflux-filter)"
-					></rect>
-				</svg>
+				<Backdrop />
 				<div class="relative w-full bg-white px-6 pb-8 pt-10 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:rounded-lg sm:px-10">
 					<div class="mx-auto w-full max-w-md">
 						<div class="divide-y divide-gray-300/50">
@@ -408,7 +342,6 @@ export default function Page() {
 											style="width: 340px; height: 340px; transform: rotate(-90deg);"
 										>
 											<svg
-												class="MuiCircularProgress-svg"
 												fill="currentColor"
 												viewBox="22 22 44 44"
 											>
@@ -431,7 +364,6 @@ export default function Page() {
 											style="width: 340px; height: 340px; transform: rotate(-90deg);"
 										>
 											<svg
-												class="MuiCircularProgress-svg"
 												fill="currentColor"
 												viewBox="22 22 44 44"
 											>
@@ -469,7 +401,7 @@ export default function Page() {
 							<div class="pt-8 text-base font-semibold leading-7">
 								<ul class="space-y-2.5 font-mono text-sm">
 									<For each={active()}>
-										{(chunk, i) => (
+										{(chunk, _i) => (
 											<>
 												<li class="relative pb-1">
 													<div
