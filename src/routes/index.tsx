@@ -293,8 +293,8 @@ export default function Page() {
 							<div class="w-full gap-8 border-t border-gray-300/50 md:grid md:grid-cols-3">
 								<div class="col-span-2 col-start-2">
 									<Show when={settings()}>
-										<div class="pb-2 pt-6">
-											<div class="space-y-6 rounded-md border px-4 py-6 text-base leading-7 text-gray-600">
+										<div class="relative pb-2 pt-6">
+											<div class="relative space-y-6 rounded-md border px-4 py-6 text-base leading-7 text-gray-600">
 												<div>
 													<div>
 														<label
@@ -425,6 +425,32 @@ export default function Page() {
 														</div>
 													</div>
 												</div>
+											</div>
+											<div class="absolute right-2 top-2">
+												<Button
+													onClick={() => {
+														toggleSettings(
+															(val) => !val,
+														);
+													}}
+													size={'sm'}
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 24 24"
+														stroke-width="1.5"
+														stroke="currentColor"
+														class="mr-2 size-4"
+													>
+														<path
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															d="m4.5 12.75 6 6 9-13.5"
+														/>
+													</svg>
+													Save
+												</Button>
 											</div>
 										</div>
 									</Show>
