@@ -7,7 +7,6 @@ import {
 	startOfMinute,
 } from 'date-fns';
 import {
-	createEffect,
 	createMemo,
 	createSignal,
 	For,
@@ -27,6 +26,7 @@ import {
 import { Backdrop } from '../components/backdrop';
 import { Button } from '../components/button';
 import { HackyPictureInPictureEl } from '../components/picture-in-picture';
+import { useSoundNotification } from '../lib/use-sound-notification';
 
 function Logo() {
 	return (
@@ -95,6 +95,10 @@ export default function Page() {
 	const [togglePictureInPicture, setTogglePictureInPicture] =
 		createSignal(false);
 
+	const [timerInterval, setTimerInterval] = createSignal<
+		NodeJS.Timeout | string | number | undefined
+	>();
+
 	const chunks = createMemo(() => {
 		const now = convertTimeToDate(startTime());
 		const end = convertTimeToDate(endTime(), now);
@@ -111,10 +115,6 @@ export default function Page() {
 			end_timestamp: p.end,
 		}));
 	});
-
-	const [timerInterval, setTimerInterval] = createSignal<
-		NodeJS.Timeout | string | number | undefined
-	>();
 
 	const progress = createMemo(() => {
 		const timeSlot = chunks().find((c) => {
@@ -146,20 +146,11 @@ export default function Page() {
 		};
 	});
 
-	const audio = new Audio('/notify.mp3');
-	const [volume, setVolume] = createSignal(0.5);
+	const ring = createMemo(
+		() => progress()?.status === `0%` && progress()?.index !== 0,
+	);
 
-	audio.volume = volume();
-
-	createEffect(() => {
-		audio.volume = volume();
-	});
-
-	createEffect(() => {
-		if (progress()?.status === `0%` && progress()?.index !== 0) {
-			audio.play();
-		}
-	});
+	const [volume, setVolume] = useSoundNotification(ring);
 
 	const startTimer = () => {
 		const interval = setInterval(() => {
