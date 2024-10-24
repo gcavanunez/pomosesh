@@ -150,7 +150,7 @@ export default function Page() {
 		() => progress()?.status === `0%` && progress()?.index !== 0,
 	);
 
-	const [volume, setVolume] = useSoundNotification(ring);
+	const [volume, setVolume, playAudio] = useSoundNotification(ring);
 
 	const startTimer = () => {
 		const interval = setInterval(() => {
@@ -293,107 +293,136 @@ export default function Page() {
 							<div class="w-full gap-8 border-t border-gray-300/50 md:grid md:grid-cols-3">
 								<div class="col-span-2 col-start-2">
 									<Show when={settings()}>
-										<div class="space-y-6 py-6 text-base leading-7 text-gray-600">
-											<div>
+										<div class="pb-2 pt-6">
+											<div class="space-y-6 rounded-md border px-4 py-6 text-base leading-7 text-gray-600">
 												<div>
-													<label
-														for="starttime"
-														class="block text-sm font-medium leading-6 text-gray-900"
-													>
-														Start time
-													</label>
-													<div class="mt-2">
-														<input
-															type="time"
-															name="starttime"
-															id="starttime"
-															value={startTime()}
-															onInput={(e) =>
-																setStartTime(
-																	e.target
-																		.value,
-																)
-															}
-															class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-														/>
-													</div>
-												</div>
-											</div>
-											<div class="grid grid-cols-2 gap-x-6">
-												<div>
-													<label
-														for="chunk"
-														class="block text-sm font-medium leading-6 text-gray-900"
-													>
-														Chunk of time
-													</label>
-													<div class="mt-2">
-														<input
-															type="number"
-															name="chunk"
-															value={timer()}
-															onInput={(e) =>
-																setTimer(
-																	Number(
+													<div>
+														<label
+															for="starttime"
+															class="block text-sm font-medium leading-6 text-gray-900"
+														>
+															Start time
+														</label>
+														<div class="mt-2">
+															<input
+																type="time"
+																name="starttime"
+																id="starttime"
+																value={startTime()}
+																onInput={(e) =>
+																	setStartTime(
 																		e.target
 																			.value,
-																	),
-																)
-															}
-															id="chunk"
-															class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-															placeholder="25"
-														/>
+																	)
+																}
+																class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+															/>
+														</div>
 													</div>
 												</div>
-												<div>
-													<label
-														for="email"
-														class="block text-sm font-medium leading-6 text-gray-900"
-													>
-														End time
-													</label>
-													<div class="mt-2">
-														<input
-															type="time"
-															name="endtime"
-															id="endtime"
-															value={endTime()}
-															onInput={(e) =>
-																setEndTime(
-																	e.target
-																		.value,
-																)
-															}
-															class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-														/>
+												<div class="grid grid-cols-2 gap-x-6">
+													<div>
+														<label
+															for="chunk"
+															class="block text-sm font-medium leading-6 text-gray-900"
+														>
+															Chunk of time
+														</label>
+														<div class="mt-2">
+															<input
+																type="number"
+																name="chunk"
+																value={timer()}
+																onInput={(e) =>
+																	setTimer(
+																		Number(
+																			e
+																				.target
+																				.value,
+																		),
+																	)
+																}
+																id="chunk"
+																class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+																placeholder="25"
+															/>
+														</div>
 													</div>
-												</div>
-											</div>
-											<div>
-												<div>
-													<label
-														for="volume"
-														class="block text-sm font-medium leading-6 text-gray-900"
-													>
-														Volume
-													</label>
-													<div class="mt-2">
-														<input
-															id="volume"
-															type="range"
-															min="0"
-															onInput={(e) => {
-																setVolume(
-																	Number(
+													<div>
+														<label
+															for="email"
+															class="block text-sm font-medium leading-6 text-gray-900"
+														>
+															End time
+														</label>
+														<div class="mt-2">
+															<input
+																type="time"
+																name="endtime"
+																id="endtime"
+																value={endTime()}
+																onInput={(e) =>
+																	setEndTime(
 																		e.target
 																			.value,
-																	),
-																);
-															}}
-															max="1"
-															step="0.1"
-														/>
+																	)
+																}
+																class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+															/>
+														</div>
+													</div>
+												</div>
+												<div class="grid grid-cols-2 gap-x-6 border-t pt-4">
+													<div>
+														<label
+															for="volume"
+															class="block text-sm font-medium leading-6 text-gray-900"
+														>
+															Volume
+														</label>
+
+														<div class="mt-2 flex flex-col space-y-2">
+															<input
+																id="volume"
+																type="range"
+																min="0"
+																onInput={(
+																	e,
+																) => {
+																	setVolume(
+																		Number(
+																			e
+																				.target
+																				.value,
+																		),
+																	);
+																}}
+																max="1"
+																step="0.05"
+															/>
+
+															<Button
+																onClick={
+																	playAudio
+																}
+																size={'icon'}
+															>
+																<svg
+																	xmlns="http://www.w3.org/2000/svg"
+																	fill="none"
+																	viewBox="0 0 24 24"
+																	stroke-width="1.5"
+																	stroke="currentColor"
+																	class="size-5"
+																>
+																	<path
+																		stroke-linecap="round"
+																		stroke-linejoin="round"
+																		d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+																	/>
+																</svg>
+															</Button>
+														</div>
 													</div>
 												</div>
 											</div>

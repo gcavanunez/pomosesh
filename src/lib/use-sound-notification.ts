@@ -15,6 +15,7 @@ export function useSoundNotification(condition: Accessor<boolean>) {
 			audio.play();
 		}
 	});
+	const play = () => audio.play();
 
-	return [volume, setVolume] as const;
+	return [volume, setVolume, play] as const;
 }
