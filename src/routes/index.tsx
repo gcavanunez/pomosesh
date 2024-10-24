@@ -1,23 +1,85 @@
 import { Title } from '@solidjs/meta';
 import {
 	addMinutes,
-	differenceInMinutes,
 	differenceInSeconds,
 	format,
 	startOfDay,
 	startOfMinute,
 } from 'date-fns';
-import { createMemo, createSignal, For, onCleanup, onMount } from 'solid-js';
+import {
+	createEffect,
+	createMemo,
+	createSignal,
+	For,
+	Match,
+	onCleanup,
+	onMount,
+	Show,
+	Switch,
+} from 'solid-js';
 import {
 	calculateChunksOfTime,
 	convertTimeToDate,
 	periods,
 	secondsToMinutesAndSeconds,
 } from '../lib/date-utils';
-import { useSatoriPip } from '../lib/use-satori-pip';
+
 import { Backdrop } from '../components/backdrop';
 import { Button } from '../components/button';
+import { HackyPictureInPictureEl } from '../components/picture-in-picture';
 
+function Logo() {
+	return (
+		<div class="flex items-center gap-x-2">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="32"
+				height="32"
+				viewBox="0 0 24 24"
+			>
+				<path
+					fill="currentColor"
+					d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9,9,0,0,1,12,21Z"
+				/>
+				<rect
+					width="2"
+					height="7"
+					x="11"
+					y="6"
+					fill="currentColor"
+					rx="1"
+				>
+					<animateTransform
+						attributeName="transform"
+						dur="9s"
+						repeatCount="indefinite"
+						type="rotate"
+						values="0 12 12;360 12 12"
+					/>
+				</rect>
+				<rect
+					width="2"
+					height="9"
+					x="11"
+					y="11"
+					fill="currentColor"
+					rx="1"
+				>
+					<animateTransform
+						attributeName="transform"
+						dur="0.75s"
+						repeatCount="indefinite"
+						type="rotate"
+						values="0 12 12;360 12 12"
+					/>
+				</rect>
+			</svg>
+			<h2 class="font-mono text-2xl font-semibold leading-7 text-gray-900">
+				Pomosesh
+			</h2>
+		</div>
+	);
+}
 export default function Page() {
 	const [startTime, setStartTime] = createSignal(
 		format(addMinutes(startOfDay(new Date()), 60 * 9), 'HH:mm'),
@@ -26,20 +88,12 @@ export default function Page() {
 	const [endTime, setEndTime] = createSignal(
 		format(addMinutes(new Date(), 60), 'HH:mm'),
 	);
+	const [settings, toggleSettings] = createSignal(false);
 
 	const [timer, setTimer] = createSignal(20);
 	const [check, setCheck] = createSignal(new Date());
-
-	// let timerRef: HTMLDivElement | undefined;
-	// let myCanvas: HTMLCanvasElement | undefined;
-	// let myVideo: HTMLVideoElement | undefined;
-
-	const [timerRef, setTimerRef] = createSignal<HTMLDivElement | undefined>();
-	const [myCanvas, setMyCanvas] = createSignal<
-		HTMLCanvasElement | undefined
-	>();
-	const [myVideo, setMyVideo] = createSignal<HTMLVideoElement | undefined>();
-	const { pip } = useSatoriPip(check, timerRef, myCanvas, myVideo);
+	const [togglePictureInPicture, setTogglePictureInPicture] =
+		createSignal(false);
 
 	const chunks = createMemo(() => {
 		const now = convertTimeToDate(startTime());
@@ -92,6 +146,21 @@ export default function Page() {
 		};
 	});
 
+	const audio = new Audio('/notify.mp3');
+	const [volume, setVolume] = createSignal(0.5);
+
+	audio.volume = volume();
+
+	createEffect(() => {
+		audio.volume = volume();
+	});
+
+	createEffect(() => {
+		if (progress()?.status === `0%` && progress()?.index !== 0) {
+			audio.play();
+		}
+	});
+
 	const startTimer = () => {
 		const interval = setInterval(() => {
 			setCheck(new Date());
@@ -114,12 +183,20 @@ export default function Page() {
 		});
 	});
 
-	const startNow = () => {
+	const fourHourChunk = () => {
 		setStartTime(format(startOfMinute(new Date()), 'HH:mm'));
 		setEndTime(
 			format(addMinutes(startOfMinute(new Date()), 60 * 4), 'HH:mm'),
 		);
 	};
+
+	const startNow = () => {
+		setStartTime(format(startOfMinute(new Date()), 'HH:mm'));
+		setEndTime(
+			format(addMinutes(startOfMinute(new Date()), 60 * 2), 'HH:mm'),
+		);
+	};
+
 	const resetTimer = () => {
 		setStartTime(format(startOfMinute(new Date()), 'HH:mm'));
 	};
@@ -129,95 +206,49 @@ export default function Page() {
 			<Title>{progress()?.timeLeft || ''}</Title>
 			<div class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12">
 				<Backdrop />
-				<div class="relative w-full bg-white px-6 pb-8 pt-10 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:rounded-lg sm:px-10">
-					<div class="mx-auto w-full max-w-md">
-						<div class="divide-y divide-gray-300/50">
+				<div class="relative w-full bg-white px-6 pb-8 pt-10 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-3xl sm:rounded-lg sm:px-10">
+					<div class="mx-auto w-full">
+						{/* divide-y divide-gray-300/50 */}
+						<div class="">
 							<div class="py-6">
-								<div class="md:hidden">
-									<div class="flex flex-col items-center">
-										<canvas
-											ref={setMyCanvas!}
-											class="hidden aspect-video"
-											width={1280}
-											height={720}
+								<Switch fallback={<div></div>}>
+									<Match
+										when={togglePictureInPicture() === true}
+									>
+										<HackyPictureInPictureEl
+											progress={progress}
+											check={check}
 										/>
-										<video
-											ref={setMyVideo!}
-											class="aspect-video"
-											controls
-										/>
-									</div>
-									<div class="hidden">
-										<div
-											ref={setTimerRef!}
-											style={{
-												position: 'relative',
-												display: 'flex',
-												height: '100%',
-												width: '100%',
-												'align-items': 'center',
-												'justify-content': 'center',
-												'letter-spacing': '-.02em',
-												'font-weight': 700,
-												background: 'white',
-											}}
-										>
-											<div
-												style={{
-													right: '0px',
-													left: '0px',
-													top: '42px',
-													position: 'absolute',
-													display: 'flex',
-													'align-items': 'center',
-												}}
-											>
-												<span
-													style={{
-														width: '24px',
-														height: '24px',
-														background: 'black',
-													}}
-												/>
-												<span
-													style={{
-														'margin-left': '8px',
-														'line-height': 1.4,
-														'font-size': '32px',
-													}}
-												>
-													The Thing! do the thing!!
-												</span>
-											</div>
-											<div
-												style={{
-													display: 'flex',
-													'flex-wrap': 'wrap',
-													'justify-content': 'center',
-													padding: '20px 50px',
-													margin: '0 42px',
-													'font-size': '90px',
-													width: 'auto',
-													'max-width': '550px',
-													'text-align': 'center',
-													'background-color': 'black',
-													color: 'white',
-													'line-height': 1.4,
-												}}
-											>
-												{progress()?.timeLeft}
-											</div>
-										</div>
+									</Match>
+								</Switch>
+
+								<div class="flex items-center justify-between">
+									<Logo />
+									<div class="text-gray-500">
+										{startTime()} {'->'} {endTime()}
 									</div>
 								</div>
-								<h2 class="text-2xl font-semibold leading-7 text-gray-900">
-									Pomosesh
-								</h2>
 								<div class="mt-4 flex gap-x-2">
-									<button
-										type="button"
-										class="inline-flex items-center gap-x-1.5 rounded-full bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-										onClick={startNow}
+									<Button onClick={startNow}>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="1.5"
+											stroke="currentColor"
+											class="mr-2 size-5"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
+											/>
+										</svg>
+										2 hours
+									</Button>
+									<Button
+										onClick={fourHourChunk}
+										variant={'secondary'}
 									>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +256,7 @@ export default function Page() {
 											viewBox="0 0 24 24"
 											stroke-width="1.5"
 											stroke="currentColor"
-											class="-ml-0.5 size-6"
+											class="mr-2 size-5"
 										>
 											<path
 												stroke-linecap="round"
@@ -234,11 +265,11 @@ export default function Page() {
 											/>
 										</svg>
 										4 hours
-									</button>
-									<button
-										type="button"
-										class="inline-flex items-center gap-x-1.5 rounded-full bg-white px-3.5 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 transition hover:bg-gray-50"
+									</Button>
+
+									<Button
 										onClick={resetTimer}
+										variant={'ghost'}
 									>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
@@ -246,7 +277,7 @@ export default function Page() {
 											viewBox="0 0 24 24"
 											stroke-width="1.5"
 											stroke="currentColor"
-											class="-ml-0.5 size-6"
+											class="mr-2 size-5"
 										>
 											<path
 												stroke-linecap="round"
@@ -255,246 +286,267 @@ export default function Page() {
 											/>
 										</svg>
 										Reset
-									</button>
-									<Button onClick={pip}>Pip</Button>
+									</Button>
+									<Button
+										onClick={() =>
+											setTogglePictureInPicture(
+												(val) => !val,
+											)
+										}
+										variant={'ghost'}
+									>
+										Pip
+									</Button>
 								</div>
 							</div>
-							<div class="space-y-6 py-6 text-base leading-7 text-gray-600">
-								<div>
-									<div>
-										<label
-											for="starttime"
-											class="block text-sm font-medium leading-6 text-gray-900"
-										>
-											Start time
-										</label>
-										<div class="mt-2">
-											<input
-												type="time"
-												name="starttime"
-												id="starttime"
-												value={startTime()}
-												onInput={(e) =>
-													setStartTime(e.target.value)
-												}
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-											/>
+							<div class="w-full gap-8 border-t border-gray-300/50 md:grid md:grid-cols-3">
+								<div class="col-span-2 col-start-2">
+									<Show when={settings()}>
+										<div class="space-y-6 py-6 text-base leading-7 text-gray-600">
+											<div>
+												<div>
+													<label
+														for="starttime"
+														class="block text-sm font-medium leading-6 text-gray-900"
+													>
+														Start time
+													</label>
+													<div class="mt-2">
+														<input
+															type="time"
+															name="starttime"
+															id="starttime"
+															value={startTime()}
+															onInput={(e) =>
+																setStartTime(
+																	e.target
+																		.value,
+																)
+															}
+															class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+														/>
+													</div>
+												</div>
+											</div>
+											<div class="grid grid-cols-2 gap-x-6">
+												<div>
+													<label
+														for="chunk"
+														class="block text-sm font-medium leading-6 text-gray-900"
+													>
+														Chunk of time
+													</label>
+													<div class="mt-2">
+														<input
+															type="number"
+															name="chunk"
+															value={timer()}
+															onInput={(e) =>
+																setTimer(
+																	Number(
+																		e.target
+																			.value,
+																	),
+																)
+															}
+															id="chunk"
+															class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+															placeholder="25"
+														/>
+													</div>
+												</div>
+												<div>
+													<label
+														for="email"
+														class="block text-sm font-medium leading-6 text-gray-900"
+													>
+														End time
+													</label>
+													<div class="mt-2">
+														<input
+															type="time"
+															name="endtime"
+															id="endtime"
+															value={endTime()}
+															onInput={(e) =>
+																setEndTime(
+																	e.target
+																		.value,
+																)
+															}
+															class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+														/>
+													</div>
+												</div>
+											</div>
+											<div>
+												<div>
+													<label
+														for="volume"
+														class="block text-sm font-medium leading-6 text-gray-900"
+													>
+														Volume
+													</label>
+													<div class="mt-2">
+														<input
+															id="volume"
+															type="range"
+															min="0"
+															onInput={(e) => {
+																setVolume(
+																	Number(
+																		e.target
+																			.value,
+																	),
+																);
+															}}
+															max="1"
+															step="0.1"
+														/>
+													</div>
+												</div>
+											</div>
 										</div>
-									</div>
-								</div>
-								<div class="grid grid-cols-2 gap-x-6">
-									<div>
-										<label
-											for="chunk"
-											class="block text-sm font-medium leading-6 text-gray-900"
-										>
-											Chunk of time
-										</label>
-										<div class="mt-2">
-											<input
-												type="number"
-												name="chunk"
-												value={timer()}
-												onInput={(e) =>
-													setTimer(
-														Number(e.target.value),
-													)
-												}
-												id="chunk"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-												placeholder="25"
-											/>
-										</div>
-									</div>
-									<div>
-										<label
-											for="email"
-											class="block text-sm font-medium leading-6 text-gray-900"
-										>
-											End time
-										</label>
-										<div class="mt-2">
-											<input
-												type="time"
-												name="endtime"
-												id="endtime"
-												value={endTime()}
-												onInput={(e) =>
-													setEndTime(e.target.value)
-												}
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-											/>
-										</div>
-									</div>
-								</div>
-							</div>
+									</Show>
 
-							<div class="py-4">
-								{/* <div */}
-								{/* 	ref={setTimerRef!} */}
-								{/* 	style={{ */}
-								{/* 		height: '100%', */}
-								{/* 		width: '100%', */}
-								{/* 		display: 'flex', */}
-								{/* 		'flex-direction': 'column', */}
-								{/* 		'align-items': 'center', */}
-								{/* 		'justify-content': 'center', */}
-								{/* 		'background-color': 'white', */}
-								{/* 	}} */}
-								{/* > */}
-								{/* 	<h1 class="text-3xl font-bold underline"> */}
-								{/* 		{progress()?.timeLeft} */}
-								{/* 	</h1> */}
-								{/* 	<div>{progress().status}</div> */}
-								{/* </div> */}
+									<div class="py-4">
+										<div class="relative flex items-center justify-center">
+											<div class="relative h-[340px] w-[340px]">
+												<div
+													class="text-[#0037FF]"
+													role="progressbar"
+													aria-valuenow="100"
+													style="width: 340px; height: 340px; transform: rotate(-90deg);"
+												>
+													<svg
+														fill="currentColor"
+														viewBox="22 22 44 44"
+													>
+														<circle
+															class="MuiCircularProgress-circle MuiCircularProgress-circleDeterminate"
+															cx="44"
+															cy="44"
+															r="20.2"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="3.6"
+															style="stroke-dasharray: 126.92; stroke-dashoffset: 0px;"
+														></circle>
+													</svg>
+												</div>
+												<div
+													class="absolute inset-0 text-blue-200"
+													role="progressbar"
+													aria-valuenow="100"
+													style="width: 340px; height: 340px; transform: rotate(-90deg);"
+												>
+													<svg
+														fill="currentColor"
+														viewBox="22 22 44 44"
+													>
+														<circle
+															class="circular"
+															cx="44"
+															cy="44"
+															r="20.2"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="3.6"
+															// style="stroke-dasharray: 126.92; stroke-dashoffset: 0px;"
+															style={{
+																'stroke-dasharray':
+																	'126.92',
+																'stroke-dashoffset':
+																	progress()
+																		?.stroke,
+															}}
+														></circle>
+													</svg>
+												</div>
+												<div class="absolute inset-0 flex items-center justify-center">
+													<div class="text-center font-mono text-4xl">
+														<div class="text-gray-700">
+															{
+																progress()
+																	?.timeLeft
+															}
+														</div>
+														<div class="mt-1 text-gray-400">
+															{progress().status}
+														</div>
+													</div>
+												</div>
+											</div>
 
-								{/* <div */}
-								{/* 	ref={setTimerRef!} */}
-								{/* 	style={{ */}
-								{/* 		height: '100%', */}
-								{/* 		width: '100%', */}
-								{/* 		display: 'flex', */}
-								{/* 		'text-align': 'center', */}
-								{/* 		'align-items': 'center', */}
-								{/* 		'justify-content': 'center', */}
-								{/* 		'flex-direction': 'column', */}
-								{/* 		'flex-wrap': 'nowrap', */}
-								{/* 		'background-color': 'white', */}
-								{/* 		'background-image': */}
-								{/* 			'radial-gradient(circle at 25px 25px, lightgray 2%, transparent 0%), radial-gradient(circle at 75px 75px, lightgray 2%, transparent 0%)', */}
-								{/* 		'background-size': '100px 100px', */}
-								{/* 	}} */}
-								{/* > */}
-								{/* 	<div */}
-								{/* 		style={{ */}
-								{/* 			display: 'flex', */}
-								{/* 			'align-items': 'center', */}
-								{/* 			'justify-content': 'center', */}
-								{/* 		}} */}
-								{/* 	> */}
-								{/* 		<svg */}
-								{/* 			height={80} */}
-								{/* 			viewBox="0 0 75 65" */}
-								{/* 			fill="black" */}
-								{/* 			style={{ margin: '0 75px' }} */}
-								{/* 		> */}
-								{/* 			<path d="M37.59.25l36.95 64H.64l36.95-64z"></path> */}
-								{/* 		</svg> */}
-								{/* 	</div> */}
-								{/* 	<div */}
-								{/* 		style={{ */}
-								{/* 			display: 'flex', */}
-								{/* 			'font-size': '40', */}
-								{/* 			'font-style': 'normal', */}
-								{/* 			color: 'black', */}
-								{/* 			'margin-top': '30', */}
-								{/* 			'line-height': '1.8', */}
-								{/* 			'white-space': 'pre-wrap', */}
-								{/* 		}} */}
-								{/* 	> */}
-								{/* 		<b>Vercel Edge Network</b> */}
-								{/* 	</div> */}
-								{/* </div> */}
-
-								<div class="flex items-center justify-center">
-									<div class="relative h-[340px] w-[340px]">
-										<div
-											class="text-[#0037FF]"
-											role="progressbar"
-											aria-valuenow="100"
-											style="width: 340px; height: 340px; transform: rotate(-90deg);"
-										>
-											<svg
-												fill="currentColor"
-												viewBox="22 22 44 44"
-											>
-												<circle
-													class="MuiCircularProgress-circle MuiCircularProgress-circleDeterminate"
-													cx="44"
-													cy="44"
-													r="20.2"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="3.6"
-													style="stroke-dasharray: 126.92; stroke-dashoffset: 0px;"
-												></circle>
-											</svg>
-										</div>
-										<div
-											class="absolute inset-0 text-blue-200"
-											role="progressbar"
-											aria-valuenow="100"
-											style="width: 340px; height: 340px; transform: rotate(-90deg);"
-										>
-											<svg
-												fill="currentColor"
-												viewBox="22 22 44 44"
-											>
-												<circle
-													class="circular"
-													cx="44"
-													cy="44"
-													r="20.2"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="3.6"
-													// style="stroke-dasharray: 126.92; stroke-dashoffset: 0px;"
-													style={{
-														'stroke-dasharray':
-															'126.92',
-														'stroke-dashoffset':
-															progress()?.stroke,
+											<div class="absolute right-2 top-2">
+												<Button
+													variant={'outline'}
+													onClick={() => {
+														toggleSettings(
+															(val) => !val,
+														);
 													}}
-												></circle>
-											</svg>
-										</div>
-										<div class="absolute inset-0 flex items-center justify-center">
-											<div class="text-center font-mono text-4xl">
-												<div class="text-gray-700">
-													{progress()?.timeLeft}
-												</div>
-												<div class="mt-1 text-gray-400">
-													{progress().status}
-												</div>
+													size={'icon'}
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 24 24"
+														stroke-width="1.5"
+														stroke="currentColor"
+														class="size-5"
+													>
+														<path
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+														/>
+													</svg>
+												</Button>
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-							<div class="pt-8 text-base font-semibold leading-7">
-								<ul class="space-y-2.5 font-mono text-sm">
-									<For each={active()}>
-										{(chunk, _i) => (
-											<>
-												<li class="relative pb-1">
-													<div
-														class="absolute bottom-0 left-0 right-0 h-1 w-[--width] rounded-full bg-blue-500 transition-all"
-														style={{
-															'--width':
-																progress()
-																	?.index ===
-																chunk.idx
-																	? progress()
-																			?.status
-																	: '0%',
-														}}
-													></div>
-													<div>
-														Period {chunk.idx + 1}
-													</div>
-													<div class="flex justify-between">
-														<div>Start</div>{' '}
-														<div>{chunk.start}</div>
-													</div>
-													<div class="flex justify-between">
-														<div>End</div>{' '}
-														<div>{chunk.end}</div>
-													</div>
-												</li>
-											</>
-										)}
-									</For>
-								</ul>
+								<div class="col-span-1 col-start-1 row-start-1 grid-rows-1 pt-8 text-base font-semibold leading-7">
+									<ul class="space-y-2.5 font-mono text-sm">
+										<For each={active()}>
+											{(chunk, _i) => (
+												<>
+													<li class="relative pb-1">
+														<div
+															class="absolute bottom-0 left-0 right-0 h-1 w-[--width] rounded-full bg-blue-500 transition-all"
+															style={{
+																'--width':
+																	progress()
+																		?.index ===
+																	chunk.idx
+																		? progress()
+																				?.status
+																		: '0%',
+															}}
+														></div>
+														<div>
+															Period{' '}
+															{chunk.idx + 1}
+														</div>
+														<div class="flex justify-between">
+															<div>Start</div>{' '}
+															<div>
+																{chunk.start}
+															</div>
+														</div>
+														<div class="flex justify-between">
+															<div>End</div>{' '}
+															<div>
+																{chunk.end}
+															</div>
+														</div>
+													</li>
+												</>
+											)}
+										</For>
+									</ul>
+								</div>
 							</div>
 						</div>
 					</div>

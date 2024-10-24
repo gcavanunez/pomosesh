@@ -39,6 +39,7 @@
     "date-fns": "^3.6.0",
     "satori": "^0.10.14",
     "satori-html": "^0.3.2",
-    "solid-js": "^1.8.22"
+    "solid-js": "^1.8.22",
+    "tailwindcss-animate": "^1.0.7"
   }
 }
