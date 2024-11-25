@@ -1,6 +1,7 @@
 import { Title } from '@solidjs/meta';
 import {
 	addMinutes,
+	differenceInMinutes,
 	differenceInSeconds,
 	format,
 	startOfDay,
@@ -127,8 +128,10 @@ export default function Page() {
 		const timerInSeconds = timer() * 60;
 		const timeSlotIndex = timeSlot?.idx;
 
+		// if no time slot is found given it may be the complete start
 		if (timeSlotIndex === undefined) {
 			return {
+				timePassed: 0,
 				index: 0,
 				status: 100 + '%',
 				stroke: 126.92 + 'px',
@@ -136,21 +139,36 @@ export default function Page() {
 			};
 		}
 
+		const totalConsumedSeconds = timeSlotIndex * timerInSeconds;
+
 		const diff = differenceInSeconds(check(), timeSlot!.start_timestamp);
 
+		const timeLeft = secondsToMinutesAndSeconds(timerInSeconds - diff);
+
 		return {
+			timePassed: diff + totalConsumedSeconds,
 			index: timeSlotIndex,
 			status: Math.floor((diff / timerInSeconds) * 100) + '%',
 			stroke: Math.floor((diff / timerInSeconds) * 126.92) + 'px',
-			timeLeft: secondsToMinutesAndSeconds(timerInSeconds - diff),
+			timeLeft,
 		};
+	});
+
+	const totalTimeLeft = createMemo(() => {
+		const now = convertTimeToDate(startTime());
+		const end = convertTimeToDate(endTime());
+		const totalSeconds = differenceInSeconds(end, now);
+
+		return secondsToMinutesAndSeconds(
+			totalSeconds - progress()?.timePassed,
+		);
 	});
 
 	const ring = createMemo(
 		() => progress()?.status === `0%` && progress()?.index !== 0,
 	);
 
-	const [volume, setVolume, playAudio] = useSoundNotification(ring);
+	const [_volume, setVolume, playAudio] = useSoundNotification(ring);
 
 	const startTimer = () => {
 		const interval = setInterval(() => {
@@ -215,8 +233,11 @@ export default function Page() {
 
 								<div class="flex items-center justify-between">
 									<Logo />
-									<div class="text-gray-500">
-										{startTime()} {'->'} {endTime()}
+									<div class="text-right font-mono text-xs text-gray-500">
+										<div>
+											{startTime()} {'→'} {endTime()}
+										</div>
+										<div>{totalTimeLeft()}</div>
 									</div>
 								</div>
 								<div class="mt-4 flex gap-x-2">
@@ -286,6 +307,20 @@ export default function Page() {
 										}
 										variant={'ghost'}
 									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="1.5"
+											stroke="currentColor"
+											class="mr-2 size-5"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M3 8.25V18a2.25 2.25 0 0 0 2.25 2.25h13.5A2.25 2.25 0 0 0 21 18V8.25m-18 0V6a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 6v2.25m-18 0h18M5.25 6h.008v.008H5.25V6ZM7.5 6h.008v.008H7.5V6Zm2.25 0h.008v.008H9.75V6Z"
+											/>
+										</svg>
 										Pip
 									</Button>
 								</div>

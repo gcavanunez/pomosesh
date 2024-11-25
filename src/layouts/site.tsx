@@ -53,6 +53,15 @@ const SiteLayout = (props: ParentProps) => {
 										🏠 Home
 									</A>
 								</li>
+
+								<li>
+									<A
+										href="https://github.com/gcavanunez/pomosesh"
+										class="group relative flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-[focus]:bg-white/10"
+									>
+										<span class="relative">📒 Repo</span>
+									</A>
+								</li>
 							</ul>
 						</div>
 					</div>
