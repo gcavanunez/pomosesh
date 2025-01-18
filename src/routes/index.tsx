@@ -455,51 +455,60 @@ export default function Page() {
 								</div>
 								<Show when={!isSingle()}>
 									<div class="col-span-1 col-start-1 row-start-1 grid-rows-1 pt-8 text-base font-semibold leading-7">
-										<ul class="space-y-2.5 font-mono text-sm">
-											<For each={active()}>
-												{(chunk, _i) => (
-													<>
-														<li class="relative pb-1">
-															<div
-																class="absolute bottom-0 left-0 right-0 h-1 w-[--width] rounded-full bg-blue-500 transition-all"
-																style={{
-																	'--width':
-																		progress()
-																			?.index ===
-																		chunk.idx
-																			? progress()
-																					?.status
-																			: '0%',
-																}}
-															></div>
-															<div>
-																Period{' '}
-																{chunk.kind}{' '}
-																{chunk.idx + 1}
-															</div>
-															<div class="flex justify-between">
-																<div>Start</div>{' '}
+										<div class="scrollbars-hidden max-h-[340px] overflow-hidden overflow-y-scroll">
+											<ul class="space-y-2.5 font-mono text-sm">
+												<For each={active()}>
+													{(chunk, _i) => (
+														<>
+															<li class="relative pb-1">
+																<div
+																	class="absolute bottom-0 left-0 right-0 h-1 w-[--width] rounded-full bg-blue-500 transition-all"
+																	style={{
+																		'--width':
+																			progress()
+																				?.index ===
+																			chunk.idx
+																				? progress()
+																						?.status
+																				: '0%',
+																	}}
+																></div>
 																<div>
-																	{
-																		chunk.start
-																	}
+																	Period{' '}
+																	{chunk.kind}{' '}
+																	{chunk.idx +
+																		1}
 																</div>
-															</div>
-															<div class="flex justify-between">
-																<div>End</div>{' '}
-																<div>
-																	{chunk.end}
+																<div class="flex justify-between">
+																	<div>
+																		Start
+																	</div>{' '}
+																	<div>
+																		{
+																			chunk.start
+																		}
+																	</div>
 																</div>
-															</div>
-														</li>
-													</>
-												)}
-											</For>
-										</ul>
+																<div class="flex justify-between">
+																	<div>
+																		End
+																	</div>{' '}
+																	<div>
+																		{
+																			chunk.end
+																		}
+																	</div>
+																</div>
+															</li>
+														</>
+													)}
+												</For>
+											</ul>
+										</div>
 									</div>
 								</Show>
 							</div>
-
+							{/* Footing total time */}
 							<div class="mt-16 font-mono text-xs text-gray-500 md:text-center">
 								<div>
 									{formSettings().startTime} {'→'}{' '}
