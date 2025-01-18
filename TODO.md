@@ -8,5 +8,11 @@ Todos
 
 ## Hot
 
-- [ ] Refactor the form component
+- [x] Refactor the form component
 - [ ] Persist the data from the form to the local storage, reset to zero if end period is reached
+- [ ] Make the ui more cohesive
+- [ ] Add zen mode
+- [ ] refactor the picture in picture mode to use newer APIs
+- [ ] Add different sound to breaks, and more sound selections
+- [ ] scrolling on the periods should fade on the lower and upper bounds
+- [ ] add ability to look at all periods, past and future
