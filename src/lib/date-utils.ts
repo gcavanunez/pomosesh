@@ -61,8 +61,6 @@ export function periods(
 	hasBreaks = false,
 	breakLength = 5,
 ) {
-	// const count = hasBreaks ? 2 * chunks - 1 : chunks;
-
 	const periods = Array.from({ length: chunks }, (_, i) => {
 		if (!hasBreaks) {
 			const startTime = addMinutes(start, i * chunk);
