@@ -9,6 +9,7 @@ export type FormSettingsProps = {
 	timer: number;
 	hasBreaks: boolean;
 	breakSpan: number;
+	task: string;
 };
 
 export function FormSettings(props: {
@@ -102,12 +103,34 @@ export function FormSettings(props: {
 					</div>
 				</Show>
 
-				<div
-					class={clsx(
-						!props.isSingle() && 'border-t pt-4',
-						'grid grid-cols-2 gap-x-6',
-					)}
-				>
+				<div class={clsx(!props.isSingle() && 'border-t pt-4')}>
+					<div>
+						<div>
+							<label
+								for="task"
+								class="block text-sm font-medium leading-6 text-gray-900"
+							>
+								Task
+							</label>
+							<div class="mt-2">
+								<input
+									type="text"
+									name="task"
+									id="task"
+									value={props.formSettings().task}
+									onInput={(e) =>
+										props.setFormSettings((val) => ({
+											...val,
+											task: e.target.value,
+										}))
+									}
+									class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class={clsx('grid grid-cols-2 gap-x-6')}>
 					<div>
 						<label
 							for="volume"

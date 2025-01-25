@@ -56,6 +56,7 @@ export default function Page() {
 		endTime: format(addMinutes(startOfHour(new Date()), 120), 'HH:mm'),
 		timer: 25,
 		hasBreaks: false,
+		task: 'The Thing! do the thing!!',
 		breakSpan: 5,
 	});
 
@@ -236,6 +237,7 @@ export default function Page() {
 										<HackyPictureInPictureEl
 											progress={progress}
 											check={check}
+											task={formSettings().task}
 										/>
 									</Match>
 								</Switch>

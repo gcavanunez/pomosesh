@@ -4,6 +4,7 @@ import { useSatoriPip } from '../lib/use-satori-pip';
 export function HackyPictureInPictureEl(
 	props: ParentProps<{
 		check: Accessor<Date>;
+		task: string;
 		progress: Accessor<{
 			index: number;
 			status: string;
@@ -70,7 +71,7 @@ export function HackyPictureInPictureEl(
 								'font-size': '32px',
 							}}
 						>
-							The Thing! do the thing!!
+							{props.task}
 						</span>
 					</div>
 					<div
